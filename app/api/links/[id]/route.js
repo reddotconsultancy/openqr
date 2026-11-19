@@ -1,6 +1,6 @@
 // GET / PATCH / DELETE /api/links/:id  ->  read, change or delete a dynamic link.
 // Every request needs the secret edit token: "Authorization: Bearer <token>".
-import { timingSafeEqual } from "crypto";
+import { timingSafeEqual } from "node:crypto";
 import { allow, deleteLink, getLink, getScans, saveLink } from "@/lib/store";
 import { bearer, checkDestination, clientKey, hashToken, isValidId, json, siteOrigin } from "@/lib/server";
 

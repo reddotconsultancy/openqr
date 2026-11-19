@@ -4,7 +4,7 @@
 // GET  /api/admin                         -> latest abuse reports
 // POST /api/admin  {"id":"abc1234","action":"disable"}  -> stop a link from redirecting
 // POST /api/admin  {"id":"abc1234","action":"enable"}   -> turn it back on
-import { timingSafeEqual } from "crypto";
+import { timingSafeEqual } from "node:crypto";
 import { getLink, listReports, saveLink } from "@/lib/store";
 import { isValidId, json } from "@/lib/server";
 
