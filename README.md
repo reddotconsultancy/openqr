@@ -67,9 +67,33 @@ To use your own domain, add it under **Settings > Domains** and update `NEXT_PUB
 
 In the Google Cloud Console, create a project, enable the **Safe Browsing API**, and create an API key under **APIs & Services > Credentials**. The Safe Browsing API is free for non-commercial use.
 
+## Put it online with Cloudflare (free)
+
+Cloudflare can build and host this app straight from GitHub.
+
+1. **Put the code on GitHub**, as above.
+2. **Connect the repository.** In the Cloudflare dashboard open **Workers & Pages**, create an application and connect this repository. Cloudflare detects Next.js and fills in the build command (`npm run build`) for you.
+3. **Turn on Node compatibility.** In the project settings, add the `nodejs_compat` compatibility flag for both production and preview. The app uses Node's `crypto` to hash edit tokens and compare the admin token, so it will not run without it.
+4. **Create the database yourself.** Cloudflare has no Upstash marketplace tab like Vercel's, so sign up at [upstash.com](https://upstash.com), create a free Redis database and copy its **REST** URL and token (not the Redis protocol ones).
+5. **Add your settings.** Under **Settings > Variables and Secrets**, add:
+   - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+   - `NEXT_PUBLIC_SITE_URL`: your live address, for example `https://openqr.workers.dev` or your own domain
+   - `NEXT_PUBLIC_REPO_URL`: the GitHub repository address (shown in the footer)
+   - `ADMIN_TOKEN`: a long random password, at least 16 characters
+   - `RATE_LIMIT_SALT`: any random text
+   - `GOOGLE_SAFE_BROWSING_KEY` (optional, recommended)
+
+   Store `ADMIN_TOKEN`, `RATE_LIMIT_SALT`, the Upstash token and the Safe Browsing key as **secrets**. The two `NEXT_PUBLIC_` values are baked into the browser bundle during the build, so they must be set *before* a build, not after.
+6. **Redeploy** so the new settings take effect, then test a dynamic code end to end: scan it, change the destination on the edit page and scan it again.
+
+To use your own domain, add it under the project's **Domains** settings and update `NEXT_PUBLIC_SITE_URL` to match.
+
+> **Redis is not optional on Cloudflare.** The in-memory fallback keeps links inside a single isolate. Cloudflare runs many isolates and discards them freely, so without the Upstash settings a dynamic code can work once and then fail on the next scan. Set the Redis variables before you share any dynamic code.
+
 ## Free tier limits to know
 
 - **Vercel Hobby** is free for personal, non-commercial projects. It includes 1 million function calls a month. Every dynamic scan, create or edit uses one.
+- **Cloudflare Workers free** includes 100,000 requests a day. As on Vercel, every dynamic scan, create or edit uses one.
 - **Upstash Redis free** includes 500,000 commands a month and 256 MB of storage. A scan uses about 2 commands, so the free plan covers roughly 200,000 scans a month.
 - Static QR codes use none of these, because they are made in the browser.
 
